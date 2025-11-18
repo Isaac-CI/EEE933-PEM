@@ -1,0 +1,107 @@
+go athena
+
+line x loc=0.0 spac=0.01
+line x loc=0.5 spac=0.01
+line y loc=0.0 spac=0.01
+line y loc=1.0 spac=0.01
+
+init silicon c.boron=1e15 orientation=100 two.d
+
+#Crescimento da camada de nitreto (máscara LOCOS)
+
+deposit oxide thick=0.01 div=1
+deposit nitride thick=0.25 div=1
+deposit barrier thick=0.01 div=1
+
+#Etch barrier
+ETCH barrier LEFT p1.x=0.1
+ETCH barrier RIGHT p1.x=0.4
+
+#Etch nitride
+ETCH nitride LEFT p1.x=0.1
+ETCH nitride RIGHT p1.x=0.4
+
+#Etch oxide
+ETCH oxide LEFT p1.x=0.1
+ETCH oxide RIGHT p1.x=0.4
+
+#Channel stop
+implant boron dose=1e13 energy=100
+etch barrier all
+
+#FOX
+method compress
+diffuse tim=10 tem=1000 weto2
+
+etch nitride all
+
+#Retira óxido de sacrifício
+etch oxide dry thickness=0.05
+
+#Oxide growth (sacrificial)
+diff tim=6 temp=950 dryo2
+
+#Channel implant
+implant boron dose=3e12 energy=25
+
+#Oxide growth
+diff tim=6 temp=950 dryo2
+
+#Deposição do poly
+depo poly thickness=0.05 div=5 c.phos=1e19
+
+#Etch poly 
+ETCH poly LEFT p1.x=0.2
+ETCH poly RIGHT p1.x=0.3
+
+#Arsenic implant
+implant arsenic dose=5.0e16 energy=100 pearson 
+method fermi compress
+diffuse time=1 temp=1000 nitro press=1.0
+
+#Oxide deposition
+deposit oxide thick=0.02
+
+#Etch Oxide
+ETCH oxide START X=0.15 Y=-1
+ETCH CONT X=0.15 Y=1
+ETCH CONT X=0.18 Y=1
+ETCH DONE X=0.18 Y=-1
+
+ETCH oxide START X=0.32 Y=-1
+ETCH CONT X=0.32 Y=1
+ETCH CONT X=0.35 Y=1
+ETCH DONE X=0.35 Y=-1
+
+#Alumin deposition (contacts)
+deposit alumin thick=0.02
+ 
+#Etch alumin
+ETCH alumin START X=0.185 Y=-1
+ETCH CONT X=0.185 Y=1
+ETCH CONT X=0.315 Y=1
+ETCH DONE X=0.315 Y=-1
+
+ETCH alumin LEFT p1.x=0.15
+ETCH alumin RIGHT p1.x=0.35
+
+electrode name=gate x=0.25 y=0.3
+electrode name=source x=0.16 y=0.15
+electrode name=drain x=0.33 y=0.15
+electrode name=substrate backside
+
+deposit material=bpsg thick=0.02 div=6 c.boron=1e20 c.phos=1e20
+
+#Extract design parameters
+
+#Extract field oxide
+extract name="Field TOX" thickness material="SiO~2" x.val=0.11
+
+#Extract gate oxide thickness
+extract name="Gate Tox" thickness material="SiO~2" mat.occno=1 x.val=0.25
+
+# Poly thickness
+extract name="Poly_Thickness" thickness material="polysilicon" mat.occno=1 x.val=0.25
+
+structure outfile=nmos.str
+tonyplot nmos.str
