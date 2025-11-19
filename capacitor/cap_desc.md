@@ -39,17 +39,6 @@ etch cont X=2.4 Y=-0.72
 etch cont X=2.6 Y=-0.72
 etch done X=2.6 Y=-0.82
 
-
-# ======== SALICIDE SOBRE O POLY ========
-# Deposição conformal de Ti sobre o poly (topo + laterais expostas)
-#deposit titanium thick=0.02 divisions=8
-
-# Anneal de silicidação: forma TiSi2 onde Ti toca Si ou polysilicon
-#diffus time=0.5 temp=700 nitro
-
-# Remove Ti não reagido (sobre óxido, etc.)
-#etch titanium all
-
 deposit alumin thick=0.4 divisions=79
 
 etch alumin left p1.x=1.4
@@ -67,3 +56,5 @@ deposit material=bpsg thick=0.02 div=10 c.boron=1e20 c.phos=1e20
 
 structure outfile=cap1p.str
 tonyplot cap1p.str
+
+quit
