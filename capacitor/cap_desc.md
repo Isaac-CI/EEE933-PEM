@@ -12,15 +12,15 @@ line y loc=1.00 spac=0.02
 
 init silicon c.boron=1e15 orientation=100 two.d
 
-deposit oxide      thick=0.30 divisions=60
-deposit polysilicon thick=0.20 divisions=40
+deposit oxide      thick=0.30 divisions=20
+deposit polysilicon thick=0.20 divisions=20
 
 
 etch polysilicon left p1.x=1
 etch polysilicon right p1.x=9
 
 deposit oxide      thick=0.02 divisions=20
-deposit polysilicon thick=0.20 divisions=40
+deposit polysilicon thick=0.20 divisions=20
 
 etch polysilicon left p1.x=2
 etch polysilicon right p1.x=8
@@ -39,7 +39,7 @@ etch cont X=2.4 Y=-0.72
 etch cont X=2.6 Y=-0.72
 etch done X=2.6 Y=-0.82
 
-deposit alumin thick=0.4 divisions=79
+deposit alumin thick=0.05 divisions=10
 
 etch alumin left p1.x=1.4
 etch alumin right p1.x=2.6
@@ -49,13 +49,30 @@ etch cont X=1.6 Y=-0.62
 etch cont X=2.4 Y=-0.62
 etch done X=2.4 Y=-1.5
 
-electrode name=pinf x=1.5
-electrode name=psup x=2.5
+#placa inferior
+electrode name=anode x=1.5
 
-deposit material=bpsg thick=0.2 div=10 c.boron=1e20 c.phos=1e20
+#placa superior
+electrode name=cathode x=2.5
 
 structure outfile=cap1p.str
 tonyplot cap1p.str
 
-quit
+go atlas
 
+mesh infile="cap1p.str" width=95.0
+
+models mos print  
+
+solve init
+
+method newton trap 
+
+solve vanode=0.1
+
+log outf=cap1p.log master
+solve vcathode=0.0 vstep=1 vfinal=5.0 name=cathode ac freq=1.0e-6
+
+tonyplot cap1p.log
+
+quit
