@@ -52,9 +52,10 @@ etch done X=2.4 Y=-1.5
 electrode name=pinf x=1.5
 electrode name=psup x=2.5
 
-deposit material=bpsg thick=0.02 div=10 c.boron=1e20 c.phos=1e20
+deposit material=bpsg thick=0.2 div=10 c.boron=1e20 c.phos=1e20
 
 structure outfile=cap1p.str
 tonyplot cap1p.str
 
 quit
+
