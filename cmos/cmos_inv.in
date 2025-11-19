@@ -1,0 +1,152 @@
+go athena
+
+# ---------------------------------------------------------
+# 1. DEFINICAO DA MALHA E SUBSTRATO INICIAL
+# ---------------------------------------------------------
+# Definimos uma largura total de 3.0um.
+# x=0.5 a 1.0 sera a area ativa do NMOS
+# x=2.0 a 2.5 sera a area ativa do PMOS
+line x loc=0.00 spac=0.10
+line x loc=0.50 spac=0.02
+line x loc=1.00 spac=0.02
+line x loc=2.00 spac=0.02
+line x loc=2.50 spac=0.02
+line x loc=3.00 spac=0.10
+
+line y loc=0.00 spac=0.01
+line y loc=0.50 spac=0.05
+line y loc=1.00 spac=0.20
+
+# Comecamos com substrato P (Boron) padrao para CMOS
+init orientation=100 c.boron=1e14
+
+# implant n-well
+deposit barrier thick=0.2 divisions=2
+etch barrier right x=1.7
+implant phospho dose=4.0E12 energy=40 pearson TILT=0 ROTATION=0 CRYSTAL
+etch barrier
+
+# locos
+deposit oxide thick=0.02 divisions=2
+etch oxide start x=0.5 y=20
+etch cont x=1.0 y=20
+etch cont x=1.0 y=-20
+etch done x=0.5 y=-20
+
+etch oxide start x=2.5 y=20
+etch cont x=2.0 y=20
+etch cont x=2.0 y=-20
+etch done x=2.5 y=-20
+
+# define Gates
+
+deposit oxide thick=0.01 divisions=2
+
+deposit poly thick=0.03 phosphor=5.0e19 divisions=10 dy=0.02 ydy=0.2
+
+etch poly left p1.x=0.625
+etch poly right p1.x=2.375
+
+etch poly start x=0.875 y=-20
+etch cont x=0.875 y=20
+etch cont x=2.125 y=20
+etch done x=2.125 y=-20
+
+# n+ regions implant
+deposit barrier thick=0.03 divisions=2
+
+etch barrier start x=1.0 y=20
+etch cont x=0.875 y=20
+etch cont x=0.875 y=-20
+etch done x=1.0 y=-20
+
+etch barrier start x=0.5 y=20
+etch cont x=0.625 y=20
+etch cont x=0.625 y=-20
+etch done x=0.5 y=-20
+
+implant arsenic dose=4.0E11 energy=15 pearson TILT=0 ROTATION=0 CRYSTAL
+
+etch barrier
+
+# p+ region implant
+deposit barrier thick=0.03 divisions=2
+
+etch barrier start x=2.0 y=20
+etch cont x=2.125 y=20
+etch cont x=2.125 y=-20
+etch done x=2.0 y=-20
+
+etch barrier start x=2.5 y=20
+etch cont x=2.375 y=20
+etch cont x=2.375 y=-20
+etch done x=2.5 y=-20
+
+implant boron dose=8.0E13 energy=10 pearson TILT=0 ROTATION=0 CRYSTAL
+
+etch barrier
+
+# define gate contacts
+
+deposit oxide thick=0.01 divisions=2
+
+etch oxide start x=0.6 y=20
+etch cont x=0.6 y=-20
+etch cont x=0.5 y=-20
+etch done x=0.5 y=20
+
+etch oxide start x=0.9 y=20
+etch cont x=0.9 y=-20
+etch cont x=1.0 y=-20
+etch done x=1.0 y=20
+
+etch oxide start x=2.1 y=20
+etch cont x=2.1 y=-20
+etch cont x=2.0 y=-20
+etch done x=2.0 y=20
+
+etch oxide start x=2.4 y=20
+etch cont x=2.4 y=-20
+etch cont x=2.5 y=-20
+etch done x=2.5 y=20
+
+# Metaliza contatos
+deposit alumin thick=0.05 divi=2
+
+etch alumin left x=0.475
+etch alumin right x=2.525
+
+etch alumin start x=0.625 y=20
+etch cont x=0.625 y=-20
+etch cont x=0.875 y=-20
+etch done x=0.875 y=20
+
+
+etch alumin start x=2.125 y=20
+etch cont x=2.125 y=-20
+etch cont x=2.375 y=-20
+etch done x=2.375 y=20
+
+# define electrodes
+electrode name=ground x=0.55 y=0.1
+electrode name=gate x=0.75 y=-0.02
+electrode name=vbb x=0.95 y=0.1
+electrode name=gate x=2.25 y=-0.02
+electrode name=vdd x=2.45 y=0.1
+
+structure outfile=cmos_inverter.str
+
+tonyplot cmos_inverter.str
+
+go atlas
+
+# Use the cvt mobility model for MOS 
+models mos
+
+method newton carriers=2 iterations=50
+solve init
+
+solve vvdd=3.3
+solve vgate=0 vstep=0.3 vfinal=3.3 name=gate
+
+quit
