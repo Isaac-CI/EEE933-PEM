@@ -1,3 +1,5 @@
+### Capacitor Poly com dopagem variavel ###
+
 go athena
 
 line x loc=0.00 spac=0.10
@@ -15,12 +17,16 @@ init silicon c.boron=1e15 orientation=100 two.d
 deposit oxide      thick=0.30 divisions=20
 deposit polysilicon thick=0.20 divisions=20
 
+#implant phos dose=1.0e17 energy=55 pearson
+
 
 etch polysilicon left p1.x=1
 etch polysilicon right p1.x=9
 
 deposit oxide      thick=0.02 divisions=20
 deposit polysilicon thick=0.20 divisions=20
+
+#implant phos dose=1.0e17 energy=55 pearson
 
 etch polysilicon left p1.x=2
 etch polysilicon right p1.x=8
