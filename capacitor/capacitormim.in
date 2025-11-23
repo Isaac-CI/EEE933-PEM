@@ -1,0 +1,52 @@
+###  MIM  ###
+
+go athena
+
+line x loc=0.00 spac=0.10
+line x loc=10.00 spac=0.10
+
+line y loc=0.00 spac=0.10
+line y loc=0.30 spac=0.025
+line y loc=0.50 spac=0.025
+line y loc=0.52 spac=0.010
+line y loc=0.72 spac=0.010
+line y loc=1.00 spac=0.10
+
+init silicon c.boron=1e15 orientation=100 two.d
+
+deposit oxide   thick=0.30 divisions=20
+deposit alumin  thick=0.20 divisions=20
+
+deposit oxide   thick=0.02 divisions=20
+deposit alumin  thick=0.20 divisions=20
+
+deposit oxide   thick=0.10 divisions=20
+
+
+# placa inferior 
+electrode name=anode   y=0.40
+
+# placa superior 
+electrode name=cathode y=0.60
+
+structure outfile=cap1p.str
+tonyplot cap1p.str
+
+go atlas
+
+mesh infile="cap1p.str" width=57.0
+
+models mos print  
+
+solve init
+
+method newton trap 
+
+solve vanode=0.1
+
+log outf=cap1p.log master
+solve vcathode=0.0 vstep=1 vfinal=5.0 name=cathode ac freq=1.0e-6
+
+tonyplot cap1p.log
+
+quit
