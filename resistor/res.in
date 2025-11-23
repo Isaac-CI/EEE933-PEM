@@ -1,0 +1,120 @@
+go athena
+
+# Malha
+line x loc=0.0 spac=0.01
+line x loc=0.2 spac=0.01
+line x loc=0.35 spac=0.05
+line x loc=2.5 spac=0.05   
+
+line y loc=0.0 spac=0.05
+line y loc=1.0 spac=0.05
+
+# Substrato + poly
+init silicon c.boron=1e15 orientation=100 two.d
+
+# STI simulação (ele n aceita dry etch do silicio(?))
+etch silicon start x=0.2 y=-1
+etch cont   x=0.2 y=0.3
+etch cont   x=2.3 y=0.3
+etch done   x=2.3 y=-1
+
+deposit oxide thick=0.32 divisions=2
+
+ETCH oxide START X=-1   Y=-1
+ETCH CONT  X=-1   Y=-0.02
+ETCH CONT  X=2.5  Y=-0.02
+ETCH DONE  X=2.5  Y=-1
+
+deposit polysilicon thick=0.1 divisions=1
+
+structure outfile=poly_resistor.str
+
+implant boron dose=1.21e16 energy=80
+diffuse time=50 temp=900 inert
+
+# Definição do resistor de poly
+etch polysilicon left  p1.x=0.25
+etch polysilicon right p1.x=2.25
+
+# Óxido de proteção contra silicide
+deposit oxide thick=0.12 divisions=32
+
+# Etch left
+ETCH oxide START X=0.25 Y=-1
+ETCH CONT  X=0.25 Y=-0.12
+ETCH CONT  X=0.5  Y=-0.12
+ETCH DONE  X=0.5  Y=-1
+
+# Etch right
+ETCH oxide START X=2.0  Y=-1
+ETCH CONT  X=2.0  Y=-0.12
+ETCH CONT  X=2.25 Y=-0.12
+ETCH DONE  X=2.25 Y=-1
+
+# Contatos metálicos
+DEPOSIT ALUMIN THICK=0.1
+
+ETCH ALUMIN START X=0.0 Y=-1
+ETCH CONT   X=0.0 Y=-0.14
+ETCH CONT   X=2.5 Y=-0.14
+ETCH DONE   X=2.5 Y=-1
+
+# Abre janela nos contatos
+etch oxide dry thickness=0.12
+
+ELECTRODE NAME=anode   X=0.4
+ELECTRODE NAME=cathode X=2.15
+
+# Sheet resistance do poly (só para conferência)
+extract name="sheet_res" sheet.res material="Polysilicon" mat.occno=1 \
+        x.val=1.0 region.occno=1 semi.poly
+
+structure outfile=poly_resistor.str
+
+tonyplot poly_resistor.str
+
+
+########################
+#  PARTE ATLAS – SIMULAÇÃO
+########################
+
+go atlas
+
+# 1) Carrega estrutura do ATHENA
+mesh infile=poly_resistor.str
+
+# 2) Modelos físicos
+models cvt srh print temp=300
+
+# 3) Contatos ohmicos
+contact name=anode   neutral
+contact name=cathode neutral
+
+# 4) Método numérico
+method newton
+
+# 5) Solução inicial
+solve init
+
+# ---------- T = 300 K (referência) ----------
+log outf=poly_resistor_iv_300K.log
+solve name=anode vanode=0 vfinal=5 vstep=0.25
+save outf=poly_resistor_iv_300K.str
+
+# ---------- T = 250 K ----------
+models cvt srh print temp=250
+solve init
+log outf=poly_resistor_iv_250K.log
+solve name=anode vanode=0 vfinal=5 vstep=0.25
+save outf=poly_resistor_iv_250K.str
+
+# ---------- T = 350 K ----------
+models cvt srh print temp=350
+solve init
+log outf=poly_resistor_iv_350K.log
+solve name=anode vanode=0 vfinal=5 vstep=0.25
+save outf=poly_resistor_iv_350K.str
+
+tonyplot poly_resistor_iv_300K.log
+
+quit
